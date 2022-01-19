@@ -99,9 +99,7 @@ function showDepartments() {
 
   function showRoles() {
     console.log('Showing all roles...\n');
-  
-    // Joins the tables department and role where the column id of the department table is equal to the column department_id of the role table
-    // And everything after SELECT chooses what columns of the new table will be displayed
+
     const sql = `SELECT role.id AS ID, title, department_name AS department, salary  
     FROM department
     JOIN role
@@ -118,8 +116,6 @@ function showDepartments() {
   function showEmployees() {
     console.log('Showing all employees...\n');
   
-    // Joins three tables: department, role, and employee
-    // CONCAT adds a column with the manager's name instead of only thier manager_id
     const sql = `SELECT employee.id, employee.first_name, employee.last_name, title, department_name AS department, salary, CONCAT (manager.first_name, " ", manager.last_name) AS manager
     FROM employee
     JOIN role 
@@ -145,10 +141,8 @@ function showDepartments() {
       }
     ])
     .then(answer => {
-      // This SQL query then adds the new department into the database
       const sql = `INSERT INTO department (department_name)
                    VALUES (?)`;
-      // The second parameter takes on the value fron what is inserted in the sql relationship above
       db.query(sql, answer.addDept, (err,result) => {
         if(err) throw err;
         console.log(`Added ${answer.addDept} to departments`);
@@ -172,31 +166,25 @@ function showDepartments() {
       }
     ])
     .then(answer => {
-      // We're grabbing the values from the answers we gave from the questions above
       const params = [answer.role, answer.salary];
-      // Selecting columns from the department table
       const roleSql = `SELECT department_name, id FROM department`;
   
       db.query(roleSql, (err,data) => {
         if (err) throw err;
-        // 'dept' is an array of objects that have the properties department_name and value whihc corrspnd to the rows within the department table
         const dept = data.map(({department_name, id}) => ({department_name: department_name, value: id}));
   
         inquirer.prompt([
           {
-            // We use 'dept' as the set of choices for this prompt
             type:'list',
             name:'dept',
             message:'What department is this role in?',
             choices: dept
           }
         ])
-        // Takes the answer from the question above and inserts in into the array 'dept'
           .then(deptChoice => {
             const dept = deptChoice.dept;
             params.push(dept);
           
-            // This SQL query then adds the new role into the database
             const sql = `INSERT INTO role (title, salary, department_id)
                          VALUES(?,?,?)`;
                          
@@ -225,7 +213,6 @@ function showDepartments() {
       }
     ])
     .then(answer => {
-      // Grabs the values from the questions above and sets it equal to params
       const params = [answer.firstName, answer.lastName]
   
       const roleSql = `SELECT role.id, role.title FROM role`;
